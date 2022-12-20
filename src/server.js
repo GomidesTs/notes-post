@@ -1,15 +1,23 @@
+require('dotenv/config')
 require('express-async-errors')
 
 const express = require('express')
+const cors = require('cors')
+
 const AppError = require('./utils/AppError')
 const routes = require('./routes')
 const migrationsRun = require('./database/sqlite/migrations')
+const uploadConfig = require('./configs/upload')
+
 const app = express()
-const PORT = 3000
+
+const PORT = process.env.PORT || 3334
 
 migrationsRun()
 
+app.use(cors())
 app.use(express.json())
+app.use('/files', express.static(uploadConfig.UPLOADS_FOLDER))
 app.use(routes)
 app.use((error, request, response, next) => {
     if (error instanceof AppError) {
